@@ -1,0 +1,17 @@
+**/vendor/
+**/app/config/config.php
+**/public/css/
+**/public/js/
+**/public/images/
+**/public/img/
+/nbproject/private/
+**/.idea/*
+privkey.pem
+pubkey.pub
+main.css
+**/logs/
+**/app/logs/
+**/public/logs.txt
+**/public/js/*
+**/public/webtools.php
+**/public/webtools.config.php
