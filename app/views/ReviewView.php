@@ -14,7 +14,7 @@ class ReviewView extends AbstractView
         $handledReview['user_id'] = $review['user_id'];
         $handledReview['review_text'] = $review['review_text'];
         $handledReview['rating'] = $review['rating'];
-        $date = new DateTime($review['review_date']);
+        $date = new \DateTime($review['review_date']);
         $handledReview['review_date'] = $date->format(POSTGRES_DATE_FORMAT);
 
         return $handledReview;

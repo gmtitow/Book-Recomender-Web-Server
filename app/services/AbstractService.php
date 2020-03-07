@@ -2,6 +2,22 @@
 
 namespace App\Services;
 
+
+//--------------------------------------------------------------------------------
+// Generated automatically by 001
+use App\Services\AbstractService as AbstractService001;
+use App\Services\AuthService as AuthService001;
+use App\Services\AuthorService as AuthorService001;
+use App\Services\BookListsService as BookListsService001;
+use App\Services\BookService as BookService001;
+use App\Services\FileService as FileService001;
+use App\Services\ReviewService as ReviewService001;
+use App\Services\ServiceException as ServiceException001;
+use App\Services\ServiceExtendedException as ServiceExtendedException001;
+use App\Services\UserService as UserService001;
+
+// End for 001
+//--------------------------------------------------------------------------------
 use App\Libs\PHPMailerApp;
 
 /**
@@ -74,4 +90,60 @@ abstract class AbstractService extends \Phalcon\DI\Injectable
     {
         $this->logger->log($message);
     }
+
+	//--------------------------------------------------------------------------------
+	// Generated automatically by 001
+	/**
+	 * @var AbstractService001
+	 */
+	protected $abstractService;
+
+	/**
+	 * @var AuthService001
+	 */
+	protected $authService;
+
+	/**
+	 * @var AuthorService001
+	 */
+	protected $authorService;
+
+	/**
+	 * @var BookListsService001
+	 */
+	protected $bookListsService;
+
+	/**
+	 * @var BookService001
+	 */
+	protected $bookService;
+
+	/**
+	 * @var FileService001
+	 */
+	protected $fileService;
+
+	/**
+	 * @var ReviewService001
+	 */
+	protected $reviewService;
+
+	/**
+	 * @var ServiceException001
+	 */
+	protected $serviceException;
+
+	/**
+	 * @var ServiceExtendedException001
+	 */
+	protected $serviceExtendedException;
+
+	/**
+	 * @var UserService001
+	 */
+	protected $userService;
+
+
+	// End for 001
+	//--------------------------------------------------------------------------------
 }

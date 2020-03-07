@@ -79,6 +79,11 @@ class UserService extends AbstractService
                 SupportClass::getErrorsWithException($user,self::ERROR_UNABLE_CREATE_USER,'unable to create user');
             }
 
+            $this->bookListsService->createBookList([
+                'list_name'=>'Все книги',
+                'user_id'=>$user->getUserId()
+            ]);
+
         } catch (\PDOException $e) {
             throw new ServiceException($e->getMessage(), $e->getCode(), $e);
         }
