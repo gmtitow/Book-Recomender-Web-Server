@@ -15,3 +15,5 @@ main.css
 **/public/js/*
 **/public/webtools.php
 **/public/webtools.config.php
+/app/config/router_backup_files/
+recommend/*

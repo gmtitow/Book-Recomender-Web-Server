@@ -2,9 +2,10 @@
 
 namespace App\Libs\Database;
 
+use App\library\Database\QueryBuilder;
 use App\Libs\SupportClass;
 
-class CustomQuery
+class CustomQuery extends QueryBuilder
 {
     private $where;
 
@@ -41,11 +42,13 @@ class CustomQuery
     }
 
     /**
-     * @param mixed $distinct
+     * @param string $distinct
+     * @param string $id_name
      * @return $this
      */
-    public function setDistinct($distinct)
+    public function setDistinct(string $distinct/*, string $id_name*/)
     {
+//        $this->setId($id_name);
         $this->distinct = $distinct;
         return $this;
     }
@@ -174,13 +177,14 @@ class CustomQuery
         return $this;
     }
 
-    public function addWhere($where, $bind=null){
+    public function addWhere($where, array $bind=null){
         if(empty(trim($this->where)))
             $this->where .=$where;
         else
             $this->where .= ' and '.$where;
 
-        $this->addBind($bind);
+        if ($bind!=null)
+            $this->addBind($bind);
 
         return $this;
     }
@@ -193,7 +197,7 @@ class CustomQuery
         return $this;
     }
 
-    public function addBind($bind){
+    public function addBind(array $bind){
         if($this->bind==null)
             $this->bind = $bind;
         else if($bind!=null && is_array($bind))
@@ -217,10 +221,6 @@ class CustomQuery
 
     public function addDeleted($deleted, $table = ""){
         $this->addWhere(($table==""?"":$table.'.').'deleted = :deleted',['deleted'=>SupportClass::convertBooleanToString($deleted)]);
-//        if($this->bind==null)
-//            $this->bind = ['deleted'=>SupportClass::convertBooleanToString($deleted)];
-//        else
-//            $this->bind = array_merge($this->bind,['deleted'=>SupportClass::convertBooleanToString($deleted)]);
 
         return $this;
     }
@@ -320,35 +320,20 @@ class CustomQuery
 
     public function __construct(array $query = null, $not_deleted = null)
     {
+        parent::__construct($query,$not_deleted);
         if($query!=null) {
-            if(isset($query['where']))
-                $this->setWhere($query['where']);
             if(isset($query['id']))
                 $this->setId($query['id']);
-            if(isset($query['bind']))
-                $this->setBind($query['bind']);
-            if(isset($query['columns']))
-                $this->setColumns($query['columns']);
             if(isset($query['columns_map']))
                 $this->setColumnsMap($query['columns_map']);
-            if(isset($query['from']))
-                $this->setFrom($query['from']);
-            if(isset($query['order']))
-                $this->setOrder($query['order']);
-            if(isset($query['limit']))
-                $this->setLimit($query['limit']);
-            if(isset($query['offset']))
-                $this->setOffset($query['offset']);
-            if(isset($query['option']))
-                $this->setOption($query['option']);
-            if(isset($query['group']))
-                $this->setGroup($query['group']);
-            if(isset($query['distinct']))
-                $this->setDistinct($query['distinct']);
         }
     }
 
-    public function getQueryInArray(){
+    public static function formSqlQuery(array $query = null, $not_deleted = null) {
+        return (new CustomQuery($query,$not_deleted))->getSql();
+    }
+
+    public function getQueryInArray() : array {
         return [
             'from'=>$this->getFrom(),
             'where'=>$this->getWhere(),
@@ -375,7 +360,7 @@ class CustomQuery
     {
         $sql_query = 'SELECT ';
         if(!is_null($this->getDistinct())){
-            $sql_query .= $this->getDistinct();
+            $sql_query .= $this->getDistinct().' ';
         }
 
         if (!is_null($this->getColumns()))
@@ -403,7 +388,6 @@ class CustomQuery
 
         if(!is_null($this->getOption()))
             $sql_query .= ' option ' . $this->getOption();
-
 
         return $sql_query;
     }

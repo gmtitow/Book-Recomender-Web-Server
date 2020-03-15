@@ -8,6 +8,7 @@ use App\Controllers\HttpExceptions\Http422Exception;
 use App\Controllers\HttpExceptions\Http500Exception;
 use App\Libs\SupportClass;
 use App\Models\Reviews;
+use App\Services\BookListsService;
 use App\services\BookService;
 use App\services\FileService;
 use App\Services\ServiceException;
@@ -36,29 +37,30 @@ class BookController extends AbstractController
      * @params page_size int
      *
      */
-    public function getBooksAction() {
+    public function getBooksAction()
+    {
         $expectation = [
             'author_id' => [
-                'type'=>'int'
+                'type' => 'int'
             ],
             'genre_id' => [
-                'type'=>'int'
+                'type' => 'int'
             ],
             'query' => [
-                'type'=>'string',
-                'default'=>''
+                'type' => 'string',
+                'default' => ''
             ],
             'page' => [
-                'type'=>'int',
+                'type' => 'int',
                 'default' => 1
             ],
             'page_size' => [
-                'type'=>'int',
-                'default'=> 10
+                'type' => 'int',
+                'default' => 10
             ],
         ];
 
-        $data = self::getInput('POST',$expectation);
+        $data = self::getInput('POST', $expectation);
 
         try {
             $filters = [];
@@ -89,35 +91,47 @@ class BookController extends AbstractController
     /**
      * @url recommends
      * @method POST
-     * @access public
+     * @access private
      *
      * @params genre_id int
-     * @params query string
+     * @params query string = ''
      *
-     * @params page int
-     * @params page_size int
+     * @params! list_id int
+     *
+     * @params page int = 1 >= 1
+     * @params page_size int = 10
      *
      */
-    public function getRecommendsAction() {
-        $expectation = [
-            'genre_id' => [
-                'type'=>'int'
-            ],
-            'query' => [
-                'type'=>'string',
-                'default'=>''
-            ],
-            'page' => [
-                'type'=>'int',
-                'default' => 1
-            ],
-            'page_size' => [
-                'type'=>'int',
-                'default'=> 10
-            ],
-        ];
+    public function getRecommendsAction()
+    {
+        //GENERATED VALIDATION
+        {
+            $expectation = [
+                'genre_id' => [
+                    'type' => 'int',
+                ],
+                'query' => [
+                    'type' => 'string',
+                    'default' => '',
+                ],
+                'list_id' => [
+                    'type' => 'int',
+                    'is_require' => true,
+                ],
+                'page' => [
+                    'type' => 'int',
+                    'min' => 1,
+                    'default' => 1,
+                ],
+                'page_size' => [
+                    'type' => 'int',
+                    'default' => 10,
+                ],
+            ];
 
-        $data = self::getInput('POST',$expectation);
+            $data = self::getInput('POST', $expectation, null, false);
+        }
+        //END GENERATED VALIDATION
 
         try {
             $filters = [];
@@ -125,7 +139,7 @@ class BookController extends AbstractController
             if (isset($data['genre_id']))
                 $filters['genres'] = array($data['genre_id']);
 
-            $books = $this->bookService->getRecommends($data['query'], $filters, $data['page'], $data['page_size']);
+            $books = $this->bookService->getRecommends($data['list_id'], $filters, $data['page'], $data['page_size']);
 
         } catch (ServiceExtendedException $e) {
             switch ($e->getCode()) {
@@ -143,6 +157,49 @@ class BookController extends AbstractController
     }
 
     /**
+     * @url /form-recommends
+     * @method POST
+     * @access private
+     *
+     * @params! list_id
+     */
+    public function formNewRecommendationListAction()
+    {
+        //GENERATED VALIDATION
+        {
+            $expectation = [
+                'list_id' => [
+                    'type' => 'int',
+                    'is_require' => true,
+                ],
+            ];
+
+            $data = self::getInput('POST', $expectation, null, false);
+        }
+        //END GENERATED VALIDATION
+        try {
+            $list = $this->bookListsService->getBookListById($data['list_id']);
+
+            $this->bookService->formNewRecommendationList($data['list_id']);
+
+        } catch (ServiceExtendedException $e) {
+            switch ($e->getCode()) {
+                default:
+                    throw new Http500Exception(_('Internal Server Error'), $e->getCode(), $e);
+            }
+        } catch (ServiceException $e) {
+            switch ($e->getCode()) {
+                case BookListsService::ERROR_BOOK_LIST_NOT_FOUND:
+                    throw new Http400Exception($e->getMessage(), $e->getCode(), $e);
+                default:
+                    throw new Http500Exception(_('Internal Server Error'), $e->getCode(), $e);
+            }
+        }
+
+        return $this->successResponse('All successfully done');
+    }
+
+    /**
      * @url get/info
      *
      * @method GET
@@ -151,26 +208,27 @@ class BookController extends AbstractController
      * @params! book_id int
      *
      */
-    public function getBookInfoAction() {
+    public function getBookInfoAction()
+    {
         $expectation = [
             'book_id' => [
-                'type'=>'int',
-                'is_require'=>true
+                'type' => 'int',
+                'is_require' => true
             ],
         ];
 
-        $data = self::getInput('GET',$expectation);
+        $data = self::getInput('GET', $expectation);
 
         try {
 
             $book = $this->bookService->getBookById($data['book_id']);
 
-            $reviews = Reviews::findForBook($data['book_id'],1,10);
+            $reviews = Reviews::findForBook($data['book_id'], 1, 10);
 
             $exists = null;
             if ($this->isAuthorized()) {
                 $userId = $this->getUserId();
-                $exists = Reviews::checkReviewExists($userId,$data['book_id']);
+                $exists = Reviews::checkReviewExists($userId, $data['book_id']);
             }
 
             $handledBook = $this->bookService->handleBookInfo($book->toArray(), $reviews, $exists);
@@ -201,19 +259,20 @@ class BookController extends AbstractController
      * @params! book_id int
      *
      */
-    public function downloadFileAction() {
+    public function downloadFileAction()
+    {
         $expectation = [
             'book_id' => [
-                'type'=>'int',
-                'is_require'=>true
+                'type' => 'int',
+                'is_require' => true
             ],
         ];
 
-        $data = self::getInput('GET',$expectation);
+        $data = self::getInput('GET', $expectation);
 
         try {
 
-        $this->fileService->returnFileToClient($data['book_id']);
+            $this->fileService->returnFileToClient($data['book_id']);
 
         } catch (ServiceExtendedException $e) {
             switch ($e->getCode()) {
@@ -239,10 +298,11 @@ class BookController extends AbstractController
      * @params! book_id int
      *
      */
-    public function changePathsAction() {
+    public function changePathsAction()
+    {
 
-        $CHARS_DELETED_FROM_FILES = ['\\','/',':','*','?','<','>','|', '.', '"', '\'', '-'];
-        $CHARS_DELETED_FROM_FILES = ['\\','/',':','*','?','<','>','|', '.', '"', '\''];
+        $CHARS_DELETED_FROM_FILES = ['\\', '/', ':', '*', '?', '<', '>', '|', '.', '"', '\'', '-'];
+        $CHARS_DELETED_FROM_FILES = ['\\', '/', ':', '*', '?', '<', '>', '|', '.', '"', '\''];
         $page = 1;
         $page_size = 50;
         $end = false;
@@ -257,8 +317,8 @@ class BookController extends AbstractController
             $files = SupportClass::executeWithPagination(
                 "select *
                             from files
-                            order by file_id asc",[],
-                $page,$page_size);
+                            order by file_id asc", [],
+                $page, $page_size);
 
             if (count($files['data']) < $page_size)
                 $end = true;
@@ -292,10 +352,10 @@ class BookController extends AbstractController
                 $path_to[0] = 'E';
 
                 SupportClass::execute("update files set path_to = :new_path where file_id = :file_id",
-                    ['new_path'=>$path_to, 'file_id'=>$file['file_id']]);
+                    ['new_path' => $path_to, 'file_id' => $file['file_id']]);
             }
 
-            $page +=1;
+            $page += 1;
         }
 
 

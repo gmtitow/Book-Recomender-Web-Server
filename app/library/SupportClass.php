@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Герман
@@ -8,6 +9,7 @@
 
 namespace App\Libs;
 
+use App\library\Database\QueryBuilder;
 use App\Libs\Database\CustomQuery;
 use Phalcon\Http\Response;
 use App\Services\ServiceExtendedException;
@@ -18,10 +20,37 @@ class SupportClass
 
     static $time;
     const COMMON_PAGE_SIZE = 10;
+    static $AvatarColors = [
+        "#F87261,#F55590",
+        "#fec180,#ff8993",
+        "#6681ea,#7e43aa",
+        "#efbad3,#a254f2",
+        "#f3dcfb,#679fe4",
+        "#d0ffae,#34ebe9",
+        "#3B87F5,#D4ECFF",
+        "#6acbe0,#6859ea",
+    ];
+    
+    static $AvatarColorsv1 = [
+        '#3B87F5',
+        '#85B4F7',
+        '#4730FA',
+        '#2A46DE',
+        '#2AA4DE',
+        '#F76654',
+        '#1854A8',
+        '#9EC21B',
+        '#8BA820',
+        '#A87107',
+        '#F5B53B',
+        '#F6BD79',
+        '#C25E1B',
+        '#615B8F',
+    ];
 
     public static function reformatDate($date, $only_string = false)
     {
-        if(!$only_string) {
+        if (!$only_string) {
             $time = filter_var($date, FILTER_VALIDATE_INT);
             if (is_int($time))
                 return date(USUAL_DATE_FORMAT, $time);
@@ -37,7 +66,7 @@ class SupportClass
 
     public static function checkInteger($var)
     {
-        return ((string)(int)$var == $var);
+        return ((string) (int) $var == $var);
     }
 
     public static function checkDouble($var)
@@ -53,7 +82,7 @@ class SupportClass
 
     public static function checkPositiveInteger($var)
     {
-        return ((string)(int)$var == $var);
+        return ((string) (int) $var == $var);
     }
 
     /*public static function checkDouble($var){
@@ -112,10 +141,10 @@ class SupportClass
 
     public static function writeMessageInLogFile($message)
     {
-//        $file = fopen(BASE_PATH . '/public/logs.txt', 'a');
-//        fwrite($file, 'Дата: ' . date('Y-m-d H:i:s') . ' - ' . $message . "\r\n");
-//        fflush($file);
-//        fclose($file);
+        //        $file = fopen(BASE_PATH . '/public/logs.txt', 'a');
+        //        fwrite($file, 'Дата: ' . date('Y-m-d H:i:s') . ' - ' . $message . "\r\n");
+        //        fflush($file);
+        //        fclose($file);
 
         $logger = DI::getDefault()->getLogger();
 
@@ -153,17 +182,12 @@ class SupportClass
         /*$str[0] = '[';
         $str[strlen($str) - 1] = ']';*/
 
-//        $str = str_replace('"{', '{', $str);
-//        $str = str_replace('}"', '}', $str);
+        $str = str_replace('"{', '{', $str);
+        $str = str_replace('}"', '}', $str);
         //$str = stripslashes($str);
 
-        $str2 = json_decode($str, true);
-
-        if ($str2 === null) {
-            echo "some";
-        }
-
-        return $str2;
+        $str = json_decode($str, true);
+        return $str;
     }
 
     public static function to_php_arr($str)
@@ -224,11 +248,18 @@ class SupportClass
     {
         $errors = SupportClass::getArrayWithErrors($object);
         if (count($errors) > 0)
-            throw new ServiceExtendedException($msg,
-                $code, null, null, $errors);
+            throw new ServiceExtendedException(
+                $msg,
+                $code,
+                null,
+                null,
+                $errors
+            );
         else {
-            throw new ServiceExtendedException($msg,
-                $code);
+            throw new ServiceExtendedException(
+                $msg,
+                $code
+            );
         }
     }
 
@@ -239,7 +270,8 @@ class SupportClass
             [
                 "errors" => $errors,
                 "status" => STATUS_WRONG
-            ]);
+            ]
+        );
 
         return $response;
     }
@@ -293,7 +325,7 @@ class SupportClass
                 $end = $i;
                 break;
             } elseif (!$string && $ch == '{') {
-                $v = to_php_array($s, $i, $i);
+                $v = self::to_php_array($s, $i, $i);
             } elseif (!$string && $ch == ',') {
                 $return[] = $v;
                 $v = '';
@@ -330,7 +362,7 @@ class SupportClass
     {
         $toRet = [];
         foreach ($columns as $info)
-            if(isset($data[$info]))
+            if (isset($data[$info]))
                 $toRet[$info] = $data[$info];
             else
                 $toRet[$info] = null;
@@ -365,14 +397,14 @@ class SupportClass
         $values = 'VALUES (';
         $fields = '(';
         $first = true;
-        foreach ($params as $field=>$value) {
-            if(!is_null($value)) {
-            if($first) {
-                $first = false;
-            } else {
-                $values .= ', ';
-                $fields .=', ';
-            }
+        foreach ($params as $field => $value) {
+            if (!is_null($value)) {
+                if ($first) {
+                    $first = false;
+                } else {
+                    $values .= ', ';
+                    $fields .= ', ';
+                }
                 if (is_string($value)) {
                     $values .= '\'' . $value . '\'';
                 } else {
@@ -383,41 +415,57 @@ class SupportClass
             }
         }
 
-        $fields.=')';
-        $values.=')';
+        $fields .= ')';
+        $values .= ')';
 
-        $sql.= $fields;
-        $sql.= ' '.$values;
+        $sql .= $fields;
+        $sql .= ' ' . $values;
 
         return $sql;
     }
 
     public static function execute($sqlRequest, $params = null, $db = null)
     {
-        if($db == null)
+        if ($db == null)
             $db = DI::getDefault()->getDb();
 
         $query = $db->prepare($sqlRequest);
         try {
             $query->execute($params);
         } catch (\Exception $e) {
-            SupportClass::writeMessageInLogFile("Ошибка: ".$e->getMessage());
+            SupportClass::writeMessageInLogFile("Ошибка: " . $e->getMessage());
             throw $e;
         }
 
         return $query->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public static function executeWithPagination($sqlRequest, $params, $page = 1, $page_size = self::COMMON_PAGE_SIZE, $db = null)
+    public static function executeQuery(QueryBuilder $builder, $db = null)
     {
-        if($db == null)
+        if ($db == null)
+            $db = DI::getDefault()->getDb();
+
+        $query = $db->prepare($builder->getSql());
+        try {
+            $query->execute($builder->getBind());
+        } catch (\Exception $e) {
+            SupportClass::writeMessageInLogFile("Ошибка: " . $e->getMessage());
+            throw $e;
+        }
+
+        return $query->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public static function executeWithPagination($sqlRequest, $params = null, $page = 1, $page_size = self::COMMON_PAGE_SIZE, $db = null)
+    {
+        if ($db == null)
             $db = DI::getDefault()->getDb();
 
         $page = filter_var($page, FILTER_VALIDATE_INT);
         $page = (!$page) ? 1 : $page;
 
         $page_size = filter_var($page_size, FILTER_VALIDATE_INT);
-        $page_size = (!$page_size) ? self::COMMON_PAGE_SIZE : $page_size;
+        $page_size = ($page_size===false) ? self::COMMON_PAGE_SIZE : $page_size;
 
         $page = $page > 0 ? $page : 1;
         $offset = ($page - 1) * $page_size;
@@ -430,7 +478,7 @@ class SupportClass
                     OFFSET :offset';
 
             $query = $db->prepare($sqlRequestReplaced);
-//            SupportClass::writeMessageInLogFile("Query: \n".var_export($sqlRequestReplaced,true));
+            //            SupportClass::writeMessageInLogFile("Query: \n".var_export($sqlRequestReplaced,true));
             $params_2 = [];
             if ($params != null)
                 foreach ($params as $key => $data) {
@@ -441,18 +489,18 @@ class SupportClass
             $params_2['offset'] = $offset;
 
             try {
-//                SupportClass::writeMessageInLogFile("Исходный запрос: ".$sqlRequest);
-//                SupportClass::writeMessageInLogFile("Исполняемый запрос: ".$sqlRequestReplaced);
-//                SupportClass::writeMessageInLogFile("Params: \n".var_export($params_2,true));
+                //                SupportClass::writeMessageInLogFile("Исходный запрос: ".$sqlRequest);
+                //                SupportClass::writeMessageInLogFile("Исполняемый запрос: ".$sqlRequestReplaced);
+                //                SupportClass::writeMessageInLogFile("Params: \n".var_export($params_2,true));
                 $query->execute($params_2);
             } catch (\Exception $e) {
-                SupportClass::writeMessageInLogFile("Ошибка: ".$e->getMessage());
+                SupportClass::writeMessageInLogFile("Ошибка: " . $e->getMessage());
                 throw $e;
             }
 
             $results = $query->fetchAll(\PDO::FETCH_ASSOC);
 
-//            SupportClass::writeMessageInLogFile("Results: \n".var_export($results,true));
+            //            SupportClass::writeMessageInLogFile("Results: \n".var_export($results,true));
 
             if (count($results) > 0) {
                 $final_results = [];
@@ -465,35 +513,102 @@ class SupportClass
                     }
                     $final_results[] = $final_result;
                 }
-//                SupportClass::writeMessageInLogFile("Final results: \n".var_export($final_results,true));
+                //                SupportClass::writeMessageInLogFile("Final results: \n".var_export($final_results,true));
 
                 return ['pagination' => ['total' => $results[0]['total_count_pagination']], 'data' => $final_results];
             } else {
                 //$sqlRequestReplaced = str_replace(["\r","\n"],' ',strtolower($sqlRequest));
                 $sqlRequestReplaced = $sqlRequest;
                 $sqlRequestReplaced = preg_replace(
-                    "/select.*?from/is", 'select count(*) AS total_count_pagination from',
-                    $sqlRequestReplaced, 1, $count);
+                    "/select.*?from/is",
+                    'select count(*) AS total_count_pagination from',
+                    $sqlRequestReplaced,
+                    1,
+                    $count
+                );
 
                 $sqlRequestReplaced = preg_replace(
-                    "/order by(?!(.|\n)*order by)(.|\n)*\z/im", '',
-                    $sqlRequestReplaced, 1, $count);
+                    "/order by(?!(.|\n)*order by)(.|\n)*\z/im",
+                    '',
+                    $sqlRequestReplaced,
+                    1,
+                    $count
+                );
 
-                SupportClass::writeMessageInLogFile("Количество найденных замен order by: ".$count);
+                //                SupportClass::writeMessageInLogFile("Количество найденных замен order by: ".$count);
 
                 $query = $db->prepare($sqlRequestReplaced);
 
                 try {
                     $query->execute($params);
                 } catch (\Exception $e) {
-                    SupportClass::writeMessageInLogFile("Запрос, который вызвал ошибку: ".$sqlRequestReplaced);
-//                    echo $e;
+                    SupportClass::writeMessageInLogFile("Запрос, который вызвал ошибку: " . $sqlRequestReplaced);
+                    //                    echo $e;
+                    throw $e;
                 }
 
                 $results = $query->fetchAll(\PDO::FETCH_ASSOC);
 
-                return ['data' => [], 'pagination' => ['total' => $results[0]['total_count_pagination']]];
+                if (count($results) > 0)
+                    return ['data' => [], 'pagination' => ['total' => $results[0]['total_count_pagination']]];
+                else {
+                    return ['data' => [], 'pagination' => ['total' => 0]];
+                }
             }
+        } else if (get_class($sqlRequest) == "App\Libs\Database\CustomQuery") {
+            $sqlRequestReplaced = $sqlRequest->getCopy();
+
+            if (!empty($sqlRequestReplaced->getDistinct())) {
+                $overQuery = new CustomQuery([
+                    'from'=> '('.$sqlRequestReplaced->getSql().') as tempDistinctTable',
+                    'bind'=>$sqlRequestReplaced->getBind()
+                ]);
+                $sqlRequestReplaced = $overQuery;
+            }
+
+            $sqlRequestReplaced->addColumn('count(*) OVER() AS total_count_pagination');
+            $sqlRequestReplaced->setLimit(':limit');
+            $sqlRequestReplaced->setOffset(':offset');
+            $sqlRequestReplaced->addBind(['limit'=>$page_size,'offset'=>$offset]);
+
+            $results = self::executeQuery($sqlRequestReplaced);
+
+            if (count($results) > 0) {
+                $final_results = [];
+                foreach ($results as $result) {
+                    $final_result = [];
+                    foreach ($result as $key => $data) {
+                        if ($key != 'total_count_pagination') {
+                            $final_result[$key] = $data;
+                        }
+                    }
+                    $final_results[] = $final_result;
+                }
+                return ['pagination' => ['total' => $results[0]['total_count_pagination']], 'data' => $final_results];
+            } else {
+                $sqlRequestReplaced = $sqlRequest->getCopy();
+
+                $sqlRequestReplaced->setOrder('');
+
+                if (!empty($sqlRequestReplaced->getDistinct())) {
+                    $overQuery = new CustomQuery([
+                        'from'=> '('.$sqlRequestReplaced->getSql().') as tempDistinctTable',
+                        'columns'=>'count(*)  AS total_count_pagination',
+                        'bind'=>$sqlRequestReplaced->getBind()
+                    ]);
+                    $sqlRequestReplaced = $overQuery;
+                } else {
+                    $sqlRequestReplaced->setColumns('count(*) AS total_count_pagination');
+                }
+                $results = self::executeQuery($sqlRequestReplaced);
+
+                if (count($results) > 0)
+                    return ['data' => [], 'pagination' => ['total' => $results[0]['total_count_pagination']]];
+                else {
+                    return ['data' => [], 'pagination' => ['total' => 0]];
+                }
+            }
+
         } elseif (is_object($sqlRequest) && get_class($sqlRequest) == 'Phalcon\Mvc\Model\Query\Builder') {
 
             $sqlGotRequest = $sqlRequest;
@@ -547,8 +662,10 @@ class SupportClass
 
     public static function getCountForObjectByModel($model, $where_condition, $params)
     {
-        $result = $model::findFirst(['columns' => 'count(*) as count', 'conditions' => $where_condition,
-            'bind' => $params]);
+        $result = $model::findFirst([
+            'columns' => 'count(*) as count', 'conditions' => $where_condition,
+            'bind' => $params
+        ]);
         /*$result = $model::findFirst(['columns'=>'count(*) as count',
             'conditions'=>'(publish_date > :publish_date:) OR (publish_date = :publish_date_2: AND news_id > :news_id:)',
             'bind'=>$params]);*/
@@ -557,10 +674,10 @@ class SupportClass
 
     public static function getCountForObjectByQuery($from, $where_condition, $params)
     {
-        if(strpos(strtolower($from),'from')===false)
-            $from = 'FROM '.$from;
-        if(strpos(strtolower($where_condition),'where')===false)
-            $where_condition = 'WHERE '.$where_condition;
+        if (strpos(strtolower($from), 'from') === false)
+            $from = 'FROM ' . $from;
+        if (strpos(strtolower($where_condition), 'where') === false)
+            $where_condition = 'WHERE ' . $where_condition;
         $result_query = "SELECT count(*) " . $from . " " . $where_condition;
 
         $db = DI::getDefault()->getDb();
@@ -607,9 +724,10 @@ class SupportClass
         return $sql_query;
     }*/
 
-    public static function handleLeftLowRightTopPoints(array $data){
-        if(!isset($data['low_left']) || !isset($data['high_right'])) {
-            if(isset($data['diagonal']) || isset($data['center'])) {
+    public static function handleLeftLowRightTopPoints(array $data)
+    {
+        if (!isset($data['low_left']) || !isset($data['high_right'])) {
+            if (isset($data['diagonal']) || isset($data['center'])) {
                 $data['high_right']['longitude'] = $data['diagonal']['longitude'];
                 $data['high_right']['latitude'] = $data['diagonal']['latitude'];
 
@@ -624,16 +742,17 @@ class SupportClass
         return $data;
     }
 
-    public static function divideSorts(string $sort){
-        $sorts = explode('|',$sort);
+    public static function divideSorts($sort)
+    {
+        $sorts = explode('|', $sort);
         $sorts2 = [];
-        foreach ($sorts as $sort){
+        foreach ($sorts as $sort) {
             //$sorts_temp = [];
-            $sorts_temp = explode(' ',trim($sort));
+            $sorts_temp = explode(' ', trim($sort));
 
-            if(count($sorts_temp) == 2 && ($sorts_temp[1] == 'asc' || $sorts_temp[1] == 'desc')){
-                if($sorts_temp[0] == 'price'){
-                    if($sorts_temp[1]=='asc') {
+            if (count($sorts_temp) == 2 && ($sorts_temp[1] == 'asc' || $sorts_temp[1] == 'desc')) {
+                if ($sorts_temp[0] == 'price') {
+                    if ($sorts_temp[1] == 'asc') {
                         $sorts_temp[0] = 'price_min';
                     } else {
                         $sorts_temp[0] = 'price_max';
@@ -642,48 +761,20 @@ class SupportClass
                 $sorts2[$sorts_temp[0]] = ['field' => $sorts_temp[0], 'direction' => $sorts_temp[1]];
             }
         }
-        
+
         return $sorts2;
     }
 
-    public static function setTimeInLog($message){
+    public static function setTimeInLog($message)
+    {
 
-        if(self::$time != null){
+        if (self::$time != null) {
             $di = DI::getDefault();
             $di->getTime()->critical(
-                'Разница: '. (microtime(true)-self::$time) .' message: ' . $message
+                'Разница: ' . (microtime(true) - self::$time) . ' message: ' . $message
             );
         }
 
         self::$time = microtime(true);
-    }
-
-    public static function file_force_download($file) {
-//        if (file_exists($file)) {
-//            header('X-SendFile: ' . realpath($file));
-//            header('Content-Type: application/octet-stream');
-//            header('Content-Disposition: attachment; filename=' . basename($file));
-//            exit;
-//        }
-
-        if (file_exists($file)) {
-            // сбрасываем буфер вывода PHP, чтобы избежать переполнения памяти выделенной под скрипт
-            // если этого не сделать файл будет читаться в память полностью!
-            if (ob_get_level()) {
-                ob_end_clean();
-            }
-            // заставляем браузер показать окно сохранения файла
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="' . basename($file).'"');
-            header('Content-Transfer-Encoding: binary');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($file));
-            // читаем файл и отправляем его пользователю
-            readfile($file);
-            exit;
-        }
     }
 }
