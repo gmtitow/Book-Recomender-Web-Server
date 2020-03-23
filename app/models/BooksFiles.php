@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-class BooksFiles extends \Phalcon\Mvc\Model
+class BooksFiles extends AbstractModel
 {
 
     /**
@@ -73,41 +73,13 @@ class BooksFiles extends \Phalcon\Mvc\Model
     public function initialize()
     {
         $this->setSchema("public");
-        $this->setSource("books_files");
+        
+		$this->setSource(self::getTableName());
         $this->belongsTo('book_id', 'App\Models\Books', 'book_id', ['alias' => 'Books']);
         $this->belongsTo('file_id', 'App\Models\Files', 'file_id', ['alias' => 'Files']);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'books_files';
-    }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return BooksFiles[]|BooksFiles|\Phalcon\Mvc\Model\ResultSetInterface
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditionsd
-     *
-     * @param mixed $parameters
-     * @return BooksFiles|\Phalcon\Mvc\Model\ResultInterface
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
+	public static function getTableName() {
+		return 'books_files';
+	}
 }

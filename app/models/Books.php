@@ -343,7 +343,8 @@ class Books extends AbstractModel
     public function initialize()
     {
         $this->setSchema("public");
-        $this->setSource("books");
+        
+		$this->setSource(self::getTableName());
         $this->hasMany('book_id', 'App\Models\BookVectorsModel', 'book_id', ['alias' => 'BookVectorsModel']);
         $this->hasMany('book_id', 'App\Models\BookVectorsPhraseNormal2', 'book_id', ['alias' => 'BookVectorsPhraseNormal2']);
         $this->hasMany('book_id', 'App\Models\BookVectorsPhraseNormal3', 'book_id', ['alias' => 'BookVectorsPhraseNormal3']);
@@ -374,35 +375,7 @@ class Books extends AbstractModel
         $this->belongsTo('translator_id', 'App\Models\Translators', 'translator_id', ['alias' => 'Translators']);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'books';
-    }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Books[]|Books|\Phalcon\Mvc\Model\ResultSetInterface
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Books|\Phalcon\Mvc\Model\ResultInterface
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
+	public static function getTableName() {
+		return 'books';
+	}
 }

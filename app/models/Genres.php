@@ -163,40 +163,12 @@ class Genres extends AbstractModel
     public function initialize()
     {
         $this->setSchema("public");
-        $this->setSource("genres");
+        
+		$this->setSource(self::getTableName());
         $this->hasMany('genre_id', 'App\Models\GenresBooks', 'genre_id', ['alias' => 'GenresBooks']);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'genres';
-    }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Genres[]|Genres|\Phalcon\Mvc\Model\ResultSetInterface
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Genres|\Phalcon\Mvc\Model\ResultInterface
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
+	public static function getTableName() {
+		return 'genres';
+	}
 }

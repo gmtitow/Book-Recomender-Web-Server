@@ -134,6 +134,12 @@ class BookController extends AbstractController
         //END GENERATED VALIDATION
 
         try {
+
+            $list = $this->bookListsService->getBookListById($data['list_id']);
+
+            if ($list->getUserId() != $this->getUserId())
+                self::returnPermissionException();
+
             $filters = [];
 
             if (isset($data['genre_id']))
@@ -179,6 +185,9 @@ class BookController extends AbstractController
         //END GENERATED VALIDATION
         try {
             $list = $this->bookListsService->getBookListById($data['list_id']);
+
+            if ($list->getUserId() != $this->getUserId())
+                self::returnPermissionException();
 
             $this->bookService->formNewRecommendationList($data['list_id']);
 

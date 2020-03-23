@@ -191,7 +191,8 @@ class ActivationCodes extends AbstractModel
     public function initialize()
     {
         $this->setSchema("public");
-        $this->setSource("activation_codes");
+        
+		$this->setSource(self::getTableName());
     }
 
     public function getSequenceName()
@@ -199,37 +200,11 @@ class ActivationCodes extends AbstractModel
         return "activationcodes_code_id_seq";
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'activation_codes';
-    }
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return ActivationCodes[]|ActivationCodes|\Phalcon\Mvc\Model\ResultSetInterface
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return ActivationCodes|\Phalcon\Mvc\Model\ResultInterface
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
     public static function findByLogin($login) {
         return ActivationCodes::findFirstByLogin($login);
     }
+
+	public static function getTableName() {
+		return 'activation_codes';
+	}
 }

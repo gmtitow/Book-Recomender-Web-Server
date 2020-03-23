@@ -63,5 +63,5 @@ $app->notFound(
     }
 );
 
-$router->handle();
+//$router->handle();
 $app->setEventsManager($eventsManager);

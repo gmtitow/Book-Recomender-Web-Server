@@ -224,17 +224,8 @@ class Users extends AbstractModel
      */
     public function initialize()
     {
-        $this->setSource("users");
-    }
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'users';
+        $this->setSchema("public");
+		$this->setSource(self::getTableName());
     }
 
     public static function getIdField()
@@ -273,4 +264,8 @@ class Users extends AbstractModel
             return false;
         return true;
     }
+
+	public static function getTableName() {
+		return 'users';
+	}
 }

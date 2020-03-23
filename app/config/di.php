@@ -1,8 +1,9 @@
 <?php
 
-use Phalcon\Db\Adapter\Pdo\Postgresql; 
+use Phalcon\Db\Adapter\Pdo\Postgresql;
 use Phalcon\Logger;
-use Phalcon\Logger\Adapter\File as FileAdapter;
+use Phalcon\Logger\Adapter\Stream;
+use Phalcon\Logger\Adapter\Stream as FileAdapter;
 
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\View\Engine\Php as PhpEngine;
@@ -58,9 +59,29 @@ $di->setShared(
 }
 );
 
-$di->setShared('logger', new FileAdapter(BASE_PATH.'/app/logs/debug.log'));
-$di->setShared('time', new FileAdapter(BASE_PATH.'/app/logs/time.log'));
+$di->setShared('logger', function () {
 
+    $adapter = new Stream(BASE_PATH . '/app/logs/debug.log');
+    $logger  = new Logger(
+        'messages',
+        [
+            'main' => $adapter,
+        ]
+    );
+    return $logger;
+});
+$di->setShared('time', function () {
+    $adapter = new Stream(BASE_PATH.'/app/logs/time.log');
+
+    $logger  = new Logger(
+        'time',
+        [
+            'main' => $adapter,
+        ]
+    );
+
+    return $logger;
+});
 
 //
 $di->setShared('accountService', '\App\Services\AccountService'); //1

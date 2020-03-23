@@ -90,7 +90,16 @@ try {
     }
 
     // Processing request
-    $app->handle();
+    $request = new Phalcon\Http\Request();
+
+    $uri = $request->getURI();
+    $prefixLen = strlen(VERSION);
+
+    if (substr($uri,0,$prefixLen) === VERSION) {
+        $uri = substr($uri,$prefixLen);
+    }
+
+    $app->handle($uri);
 } catch (AbstractHttpException $e) {
     $response = $app->response;
     $response->setStatusCode($e->getCode(), $e->getMessage());

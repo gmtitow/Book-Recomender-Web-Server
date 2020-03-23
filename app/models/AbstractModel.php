@@ -7,12 +7,10 @@ use Phalcon\Validation;
 use Phalcon\Validation\Validator\Callback;
 
 
-class AbstractModel extends \Phalcon\Mvc\Model
+abstract class AbstractModel extends \Phalcon\Mvc\Model
 {
     const SORT_DEFAULT = '';
-    const SORT_ANALYTICS = 'analytics';
     const FORMAT_DEFAULT = '';
-    const FORMAT_ANALYTICS = 'analytics';
 
     public static function findByIdDefault(int $id, array $columns = null, $name_id_field = null)
     {
@@ -120,4 +118,6 @@ class AbstractModel extends \Phalcon\Mvc\Model
             SupportClass::writeMessageInLogFile(var_export($e,true));
         }
     }
+
+    public static abstract function getTableName();
 }

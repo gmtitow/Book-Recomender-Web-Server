@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Libs\Database\CustomQuery;
 use App\Libs\SupportClass;
 
-class Reviews extends \Phalcon\Mvc\Model
+class Reviews extends AbstractModel
 {
 
     /**
@@ -196,41 +196,10 @@ class Reviews extends \Phalcon\Mvc\Model
     public function initialize()
     {
         $this->setSchema("public");
-        $this->setSource("reviews");
+        
+		$this->setSource(self::getTableName());
         $this->belongsTo('book_id', 'App\Models\Books', 'book_id', ['alias' => 'Books']);
         $this->belongsTo('user_id', 'App\Models\Users', 'user_id', ['alias' => 'Users']);
-    }
-
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'reviews';
-    }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Reviews[]|Reviews|\Phalcon\Mvc\Model\ResultSetInterface
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return Reviews|\Phalcon\Mvc\Model\ResultInterface
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
     }
 
     public static function findForBook($bookId, $page, $page_size) {
@@ -266,4 +235,8 @@ class Reviews extends \Phalcon\Mvc\Model
         
         return $reviews!==false;
     }
+
+	public static function getTableName() {
+		return 'reviews';
+	}
 }

@@ -240,7 +240,7 @@ class BookListController extends AbstractController
         }
 
         $this->db->commit();
-        return self::successResponse('Book list was successfully deleted', $bookList->toArray());
+        return self::successResponse('', $bookList->toArray());
     }
 
     /**
@@ -252,7 +252,7 @@ class BookListController extends AbstractController
      * @method POST
      *
      * @params !list_id int
-     * @params !book_id_id int
+     * @params !book_id int
      * @params !rating int >=0 <= 10
      *
      * @return array
@@ -266,7 +266,7 @@ class BookListController extends AbstractController
                     'type' => 'int',
                     'is_require' => true,
                 ],
-                'book_id_id' => [
+                'book_id' => [
                     'type' => 'int',
                     'is_require' => true,
                 ],
@@ -278,7 +278,7 @@ class BookListController extends AbstractController
                 ],
             ];
 
-            $data = self::getInput('GET', $expectation, null, false);
+            $data = self::getInput('POST', $expectation, null, false);
         }
         //END GENERATED VALIDATION
         $userId = self::getUserId();

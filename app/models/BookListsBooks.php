@@ -133,41 +133,13 @@ class BookListsBooks extends AbstractModel
     public function initialize()
     {
         $this->setSchema("public");
-        $this->setSource("book_lists_books");
+        
+		$this->setSource(self::getTableName());
         $this->belongsTo('book_id', 'App\Models\Books', 'book_id', ['alias' => 'Books']);
         $this->belongsTo('list_id', 'App\Models\BookLists', 'list_id', ['alias' => 'BookLists']);
     }
 
-    /**
-     * Returns table name mapped in the model.
-     *
-     * @return string
-     */
-    public function getSource()
-    {
-        return 'book_lists_books';
-    }
-
-    /**
-     * Allows to query a set of records that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return BookListsBooks[]|BookListsBooks|\Phalcon\Mvc\Model\ResultSetInterface
-     */
-    public static function find($parameters = null)
-    {
-        return parent::find($parameters);
-    }
-
-    /**
-     * Allows to query the first record that match the specified conditions
-     *
-     * @param mixed $parameters
-     * @return BookListsBooks|\Phalcon\Mvc\Model\ResultInterface
-     */
-    public static function findFirst($parameters = null)
-    {
-        return parent::findFirst($parameters);
-    }
-
+	public static function getTableName() {
+		return 'book_lists_books';
+	}
 }
