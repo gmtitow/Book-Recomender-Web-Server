@@ -91,6 +91,7 @@ $di->setShared('authorService', '\App\Services\AuthorService'); //4
 $di->setShared('reviewService', '\App\Services\ReviewService'); //5
 $di->setShared('fileService', '\App\Services\FileService'); //6
 $di->setShared('bookListsService', '\App\Services\BookListsService'); //7
+$di->setShared('promotionService', '\App\Services\PromotionService'); //8
 
 $di->setShared('userService', '\App\Services\UserService'); //26
 

@@ -181,7 +181,7 @@ class CustomQuery extends QueryBuilder
         if(empty(trim($this->where)))
             $this->where .=$where;
         else
-            $this->where .= ' and '.$where;
+            $this->where .= ' and ('.$where.')';
 
         if ($bind!=null)
             $this->addBind($bind);

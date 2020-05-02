@@ -117,10 +117,9 @@ try {
 } catch (\Exception $e) {
 
     // Standard error format
-    if($di->getLogger()!=null && get_class($di->getLogger()) == 'Phalcon\Logger\Adapter\File')
-        $di->getLogger()->critical(
-            $e->getCode(). ' '. $e->getMessage()
-        );
+    $di->getLogger()->critical(
+        $e->getCode() . ' ' . $e->getMessage()
+    );
 
     $result = [
         AbstractHttpException::KEY_CODE => 500,

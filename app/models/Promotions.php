@@ -12,149 +12,114 @@ class Promotions extends AbstractModel
      * @Identity
      * @Column(type="integer", length=32, nullable=false)
      */
-    protected $genre_id;
-
-    /**
-     *
-     * @var string
-     * @Column(type="string", length=100, nullable=false)
-     */
-    protected $genre_name;
-
-    /**
-     *
-     * @var integer
-     * @Column(type="integer", length=32, nullable=true)
-     */
-    protected $reading_id;
+    protected $promotion_id;
 
     /**
      *
      * @var string
      * @Column(type="string", nullable=true)
      */
-    protected $vector;
+    protected $description;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=100, nullable=true)
+     * @Column(type="timestamp", nullable=false)
      */
-    protected $genre_name_english;
+    protected $time_start;
 
     /**
-     * Method to set the value of field genre_id
      *
-     * @param integer $genre_id
-     * @return $this
+     * @var string
+     * @Column(type="timestamp", nullable=false)
      */
-    public function setGenreId($genre_id)
-    {
-        $this->genre_id = $genre_id;
+    protected $time_end;
 
-        return $this;
+    /**
+     *
+     * @var string
+     * @Column(type="timestamp", nullable=false)
+     */
+    protected $created_at;
+
+    /**
+     * @return int
+     */
+    public function getPromotionId(): int
+    {
+        return $this->promotion_id;
     }
 
     /**
-     * Method to set the value of field genre_name
-     *
-     * @param string $genre_name
-     * @return $this
+     * @param int $promotion_id
      */
-    public function setGenreName($genre_name)
+    public function setPromotionId(int $promotion_id): void
     {
-        $this->genre_name = $genre_name;
-
-        return $this;
+        $this->promotion_id = $promotion_id;
     }
 
     /**
-     * Method to set the value of field reading_id
-     *
-     * @param integer $reading_id
-     * @return $this
-     */
-    public function setReadingId($reading_id)
-    {
-        $this->reading_id = $reading_id;
-
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field vector
-     *
-     * @param string $vector
-     * @return $this
-     */
-    public function setVector($vector)
-    {
-        $this->vector = $vector;
-
-        return $this;
-    }
-
-    /**
-     * Method to set the value of field genre_name_english
-     *
-     * @param string $genre_name_english
-     * @return $this
-     */
-    public function setGenreNameEnglish($genre_name_english)
-    {
-        $this->genre_name_english = $genre_name_english;
-
-        return $this;
-    }
-
-    /**
-     * Returns the value of field genre_id
-     *
-     * @return integer
-     */
-    public function getGenreId()
-    {
-        return $this->genre_id;
-    }
-
-    /**
-     * Returns the value of field genre_name
-     *
      * @return string
      */
-    public function getGenreName()
+    public function getDescription()
     {
-        return $this->genre_name;
+        return $this->description;
     }
 
     /**
-     * Returns the value of field reading_id
-     *
-     * @return integer
+     * @param string $description
      */
-    public function getReadingId()
+    public function setDescription(string $description): void
     {
-        return $this->reading_id;
+        $this->description = $description;
     }
 
     /**
-     * Returns the value of field vector
-     *
      * @return string
      */
-    public function getVector()
+    public function getTimeStart(): string
     {
-        return $this->vector;
+        return $this->time_start;
     }
 
     /**
-     * Returns the value of field genre_name_english
-     *
+     * @param string $time_start
+     */
+    public function setTimeStart(string $time_start): void
+    {
+        $this->time_start = $time_start;
+    }
+
+    /**
      * @return string
      */
-    public function getGenreNameEnglish()
+    public function getTimeEnd(): string
     {
-        return $this->genre_name_english;
+        return $this->time_end;
+    }
+
+    /**
+     * @param string $time_end
+     */
+    public function setTimeEnd(string $time_end): void
+    {
+        $this->time_end = $time_end;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCreatedAt(): string
+    {
+        return $this->created_at;
+    }
+
+    /**
+     * @param string $created_at
+     */
+    public function setCreatedAt(string $created_at): void
+    {
+        $this->created_at = $created_at;
     }
 
     /**
@@ -165,7 +130,6 @@ class Promotions extends AbstractModel
         $this->setSchema("public");
         
 		$this->setSource(self::getTableName());
-        $this->hasMany('genre_id', 'App\Models\GenresBooks', 'genre_id', ['alias' => 'GenresBooks']);
     }
 
 	public static function getTableName() {
