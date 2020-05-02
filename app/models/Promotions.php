@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-class Genres extends AbstractModel
+class Promotions extends AbstractModel
 {
 
     /**
@@ -169,11 +169,11 @@ class Genres extends AbstractModel
     }
 
 	public static function getTableName() {
-		return 'genres';
+		return 'promotions';
 	}
 
     public static function getIdField()
     {
-        return 'genre_id';
+        return 'promotion_id';
     }
 }

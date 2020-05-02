@@ -231,4 +231,9 @@ class Authors extends AbstractModel
 	public static function getTableName() {
 		return 'authors';
 	}
+
+    public static function getIdField()
+    {
+        return 'author_id';
+    }
 }

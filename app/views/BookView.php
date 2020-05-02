@@ -63,4 +63,11 @@ class BookView extends AbstractView
 
         return $handledBook;
     }
+
+    public static function handleReadBook(array $book, string $author_full_name, int $rating) {
+        $handledBook = self::handleBookShort($book,$author_full_name);
+        $handledBook['rating'] = $rating;
+
+        return $handledBook;
+    }
 }

@@ -215,4 +215,9 @@ class Files extends AbstractModel
 	public static function getTableName() {
 		return 'files';
 	}
+
+    public static function getIdField()
+    {
+        return 'file_id';
+    }
 }

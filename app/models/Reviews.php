@@ -239,4 +239,9 @@ class Reviews extends AbstractModel
 	public static function getTableName() {
 		return 'reviews';
 	}
+
+    public static function getIdField()
+    {
+        return 'review_id';
+    }
 }

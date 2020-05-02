@@ -168,4 +168,9 @@ class BookLists extends AbstractModel
 	public static function getTableName() {
 		return 'book_lists';
 	}
+
+    public static function getIdField()
+    {
+        return 'list_id';
+    }
 }

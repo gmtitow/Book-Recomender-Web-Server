@@ -207,4 +207,9 @@ class ActivationCodes extends AbstractModel
 	public static function getTableName() {
 		return 'activation_codes';
 	}
+
+    public static function getIdField()
+    {
+        return 'code_id';
+    }
 }

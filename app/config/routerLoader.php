@@ -221,7 +221,7 @@ $routes = [
             * @method POST
             *
             * @params !list_id int
-            * @params !book_id_id int
+            * @params !book_id int
             * @params !rating int >=0 <= 10
             *
             * @return array
@@ -261,12 +261,30 @@ $routes = [
             * @access private
             * @method GET
             *
-            * @params! list_id
+            * @params list_id
+            * @params page int = 1 > 0
+            * @params page_size = 10 >= 0
             **/
             [
                 'type' => 'get',
                 'path' => '/get/books',
                 'action' => 'getBooksFromListAction',
+                'access' => 'private',
+            ],
+
+            /**
+            * возвращает книги из списка
+            *
+            * @url get/books/all
+            *
+            * @access private
+            * @method GET
+            *
+            **/
+            [
+                'type' => 'get',
+                'path' => '/get/books/all',
+                'action' => 'getAllReadBooksAction',
                 'access' => 'private',
             ],
 

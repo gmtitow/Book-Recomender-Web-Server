@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Controllers\HttpExceptions\Http400Exception;
+use App\Libs\Database\CustomQuery;
 use App\Models\ActivationCodes;
+use App\Models\Authors;
 use App\Models\BookLists;
 use App\Models\BookListsBooks;
 use App\Models\Books;
@@ -13,6 +15,7 @@ use App\Models\Group;
 use App\Models\Phones;
 
 use App\Libs\SupportClass;
+use App\Views\BookView;
 
 /**
  * business logic for users
@@ -147,7 +150,7 @@ class BookListsService extends AbstractService
      * @param BookLists $list
      * @param Books $book
      * @param int $rating
-     * @return BookListsBooks
+     * @return array
      */
     public function addBookInList(BookLists $list, Books $book, int $rating){
 
@@ -161,7 +164,9 @@ class BookListsService extends AbstractService
             SupportClass::getErrorsWithException($bookRecord,self::ERROR_UNABLE_ADD_BOOK_IN_LIST,'Unable add book in list');
         }
 
-        return $bookRecord;
+        $author = Authors::findFirstByAuthorId($book->getAuthorId());
+
+        return BookView::handleReadBook($book->toArray(),$author->getFullName(),$rating);
     }
 
     /**
@@ -187,5 +192,71 @@ class BookListsService extends AbstractService
         }
 
         return $bookRecord;
+    }
+
+
+    /**
+     * @param int $listId
+     * @param int $page
+     * @param int $page_size
+     *
+     * @return array => [data, pagination]
+     *
+     * @throws \Exception
+     */
+    public function getHandledBooksInBookList(int $listId, int $page, int $page_size) {
+        $query = $this->getQueryToGetBooksFromList($listId);
+
+        $queryResult = SupportClass::executeWithPagination($query->getSql(),$query->getBind(),$page, $page_size);
+
+        $result = [];
+        foreach ($queryResult['data'] as $book)
+            $result[] = BookView::handleReadBook($book,$book['full_name'],$book['rating_in_list']);
+
+        $queryResult['data'] = $result;
+        return $queryResult;
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @return array => [data, pagination]
+     *
+     * @throws \Exception
+     */
+    public function getALLReadHandledBooks(int $userId) {
+        $query = $this->getQueryToGetBooksForUser($userId);
+
+        $queryResult = SupportClass::executeQuery($query);
+
+        $result = [];
+        foreach ($queryResult as $book) {
+            $hBook = BookView::handleReadBook($book, $book['full_name'], $book['rating_in_list']);
+            $hBook['list_id'] = $book['list_id'];
+            $result[] = $hBook;
+        }
+
+        return $result;
+    }
+
+    private function getQueryToGetBooksFromList(int $listId) {
+        return new CustomQuery([
+            'columns'=>'books.*, authors.full_name, book_lists_books.rating as rating_in_list',
+            'from'=>'book_lists_books inner join books using(book_id) inner join authors using(author_id)',
+            'where'=>'book_lists_books.list_id = :listId',
+            'bind'=>['listId'=>$listId],
+            'order'=>'book_lists_books.created_at desc'
+        ]);
+    }
+
+    private function getQueryToGetBooksForUser(int $userId) {
+        return new CustomQuery([
+            'columns'=>'books.*, authors.full_name, book_lists_books.rating as rating_in_list, book_lists_books.list_id',
+            'from'=>'book_lists_books inner join books using(book_id) inner join authors using(author_id)
+                    inner join book_lists using(list_id)',
+            'where'=>'book_lists.user_id = :userId',
+            'bind'=>['userId'=>$userId],
+            'order'=>'book_lists_books.created_at desc'
+        ]);
     }
 }

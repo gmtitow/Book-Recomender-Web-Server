@@ -345,37 +345,14 @@ class Books extends AbstractModel
         $this->setSchema("public");
         
 		$this->setSource(self::getTableName());
-        $this->hasMany('book_id', 'App\Models\BookVectorsModel', 'book_id', ['alias' => 'BookVectorsModel']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsPhraseNormal2', 'book_id', ['alias' => 'BookVectorsPhraseNormal2']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsPhraseNormal3', 'book_id', ['alias' => 'BookVectorsPhraseNormal3']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsPhraseNormal4', 'book_id', ['alias' => 'BookVectorsPhraseNormal4']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsPhraseWithoutNormal2', 'book_id', ['alias' => 'BookVectorsPhraseWithoutNormal2']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsPhraseWithoutNormal3', 'book_id', ['alias' => 'BookVectorsPhraseWithoutNormal3']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsPhraseWithoutNormal4', 'book_id', ['alias' => 'BookVectorsPhraseWithoutNormal4']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTerm2Normal', 'book_id', ['alias' => 'BookVectorsTerm2Normal']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTerm3Normal', 'book_id', ['alias' => 'BookVectorsTerm3Normal']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTerm4Normal', 'book_id', ['alias' => 'BookVectorsTerm4Normal']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTerm5Normal', 'book_id', ['alias' => 'BookVectorsTerm5Normal']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTerm6Normal', 'book_id', ['alias' => 'BookVectorsTerm6Normal']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTerm7Normal', 'book_id', ['alias' => 'BookVectorsTerm7Normal']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTermWithoutNormal2', 'book_id', ['alias' => 'BookVectorsTermWithoutNormal2']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTermWithoutNormal3', 'book_id', ['alias' => 'BookVectorsTermWithoutNormal3']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTermWithoutNormal4', 'book_id', ['alias' => 'BookVectorsTermWithoutNormal4']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTermWithoutNormal5', 'book_id', ['alias' => 'BookVectorsTermWithoutNormal5']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTermWithoutNormal6', 'book_id', ['alias' => 'BookVectorsTermWithoutNormal6']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsTermWithoutNormal7', 'book_id', ['alias' => 'BookVectorsTermWithoutNormal7']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsWordNormal', 'book_id', ['alias' => 'BookVectorsWordNormal']);
-        $this->hasMany('book_id', 'App\Models\BookVectorsWordWithoutNormal', 'book_id', ['alias' => 'BookVectorsWordWithoutNormal']);
-        $this->hasMany('book_id', 'App\Models\BooksFiles', 'book_id', ['alias' => 'BooksFiles']);
-        $this->hasMany('book_id', 'App\Models\BooksStats', 'book_id', ['alias' => 'BooksStats']);
-        $this->hasMany('book_id', 'App\Models\CompilationsBooks', 'book_id', ['alias' => 'CompilationsBooks']);
-        $this->hasMany('book_id', 'App\Models\GenresBooks', 'book_id', ['alias' => 'GenresBooks']);
-        $this->hasMany('book_id', 'App\Models\Reviews', 'book_id', ['alias' => 'Reviews']);
-        $this->belongsTo('author_id', 'App\Models\Authors', 'author_id', ['alias' => 'Authors']);
-        $this->belongsTo('translator_id', 'App\Models\Translators', 'translator_id', ['alias' => 'Translators']);
     }
 
 	public static function getTableName() {
 		return 'books';
 	}
+
+    public static function getIdField()
+    {
+        return 'book_id';
+    }
 }

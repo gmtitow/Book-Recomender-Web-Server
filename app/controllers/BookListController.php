@@ -291,11 +291,13 @@ class BookListController extends AbstractController
 
             $book = $this->bookService->getBookById($data['book_id']);
 
-            $bookRecord = $this->bookListsService->addBookInList($bookList,$book,$data['rating']);
+            $book = $this->bookListsService->addBookInList($bookList,$book,$data['rating']);
+            $book['list_id'] = $data['list_id'];
 
         } catch (ServiceExtendedException $e) {
             switch ($e->getCode()) {
                 case BookListsService::ERROR_UNABLE_DELETE_BOOK_LIST:
+                case BookListsService::ERROR_UNABLE_ADD_BOOK_IN_LIST:
                     $exception = new Http400Exception($e->getMessage(), $e->getCode(), $e);
                     throw $exception->addErrorDetails($e->getData());
                 default:
@@ -310,7 +312,7 @@ class BookListController extends AbstractController
             }
         }
 
-        return self::successResponse('Book was successfully added in list', $bookRecord->toArray());
+        return self::successResponse('Book was successfully added in list', $book);
     }
 
     /**
@@ -322,7 +324,7 @@ class BookListController extends AbstractController
      * @method DELETE
      *
      * @params !list_id int
-     * @params !book_id_id int
+     * @params !book_id int
      *
      * @return array
      */
@@ -335,13 +337,13 @@ class BookListController extends AbstractController
                     'type' => 'int',
                     'is_require' => true,
                 ],
-                'book_id_id' => [
+                'book_id' => [
                     'type' => 'int',
                     'is_require' => true,
                 ],
             ];
 
-            $data = self::getInput('GET', $expectation, null, false);
+            $data = self::getInput('DELETE', $expectation, null, false);
         }
         //END GENERATED VALIDATION
         $userId = self::getUserId();
@@ -373,7 +375,7 @@ class BookListController extends AbstractController
             }
         }
 
-        return self::successResponse('Book was successfully added in list', $bookRecord->toArray());
+        return self::successResponse('Book was successfully deleted');
     }
 
     /**
@@ -384,7 +386,9 @@ class BookListController extends AbstractController
      * @access private
      * @method GET
      *
-     * @params! list_id
+     * @params list_id
+     * @params page int = 1 > 0
+     * @params page_size = 10 >= 0
      */
     public function getBooksFromListAction()
     {
@@ -394,6 +398,16 @@ class BookListController extends AbstractController
                 'list_id' => [
                     'type' => 'int',
                     'is_require' => true,
+                ],
+                'page' => [
+                    'type' => 'int',
+                    'min' => 1,
+                    'default' => 1,
+                ],
+                'page_size' => [
+                    'type' => 'string',
+                    'min_length' => 0,
+                    'default' => '10',
                 ],
             ];
 
@@ -410,7 +424,7 @@ class BookListController extends AbstractController
                 self::returnPermissionException();
             }
 
-            $bookRecords = BookListsBooks::findByListId($data['list_id']);
+            $bookRecords = $this->bookListsService->getHandledBooksIUnBookList($data['list_id'],$data['page'],$data['page_size']);
 
         } catch (ServiceExtendedException $e) {
             $this->db->rollback();
@@ -432,7 +446,47 @@ class BookListController extends AbstractController
         }
 
         $this->db->commit();
-        return self::successResponse('Book list was successfully deleted', $bookRecords->toArray());
+        return self::successPaginationResponse('Some message', $bookRecords['data'],$bookRecords['pagination']);
+    }
+
+    /**
+     * возвращает книги из списка
+     *
+     * @url get/books/all
+     *
+     * @access private
+     * @method GET
+     *
+     */
+    public function getAllReadBooksAction()
+    {
+        $userId = self::getUserId();
+        $this->db->begin();
+        try {
+
+            $bookRecords = $this->bookListsService->getALLReadHandledBooks($userId);
+
+        } catch (ServiceExtendedException $e) {
+            $this->db->rollback();
+            switch ($e->getCode()) {
+                case BookListsService::ERROR_UNABLE_DELETE_BOOK_LIST:
+                    $exception = new Http400Exception($e->getMessage(), $e->getCode(), $e);
+                    throw $exception->addErrorDetails($e->getData());
+                default:
+                    throw new Http500Exception(_('Internal Server Error'), $e->getCode(), $e);
+            }
+        } catch (ServiceException $e) {
+            $this->db->rollback();
+            switch ($e->getCode()) {
+                case BookListsService::ERROR_BOOK_LIST_NOT_FOUND:
+                    throw new Http400Exception($e->getMessage(), $e->getCode(), $e);
+                default:
+                    throw new Http500Exception(_('Internal Server Error'), $e->getCode(), $e);
+            }
+        }
+
+        $this->db->commit();
+        return self::successResponse('', $bookRecords);
     }
 }
 

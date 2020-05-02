@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Accounts;
 use App\Models\ActivationCodes;
 
+use App\Models\BookLists;
 use App\Models\UsersSocial;
 use Phalcon\DI\FactoryDefault as DI;
 
@@ -318,18 +319,23 @@ class AuthService extends AbstractService
 
     public function createSession(Users $user)
     {
-        $lifetime = date(USUAL_DATE_FORMAT, time() + 604800);
+        $time = time() + 604800;
+        $lifetime = date(USUAL_DATE_FORMAT, $time);
 
         $token = self::GenerateToken($user->getUserId(), $user->getEmail(),
                 $user->getRole(), $lifetime);
 
         $this->_registerSession($user);
 
+        $lists = BookLists::findByUserId($user->getUserId());
+
         $data = [
             'user_id'=>$user->getUserId(),
             'token' => $token,
             'life_time' => $lifetime,
-            'role' => $user->getRole()
+            'lifetime_int' => $time,
+            'role' => $user->getRole(),
+            'lists'=>$lists
         ];
 
         return $data;

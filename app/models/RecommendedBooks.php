@@ -118,4 +118,9 @@ class RecommendedBooks extends AbstractModel
     public static function getTableName() {
         return 'recommended_books';
     }
+
+    public static function getIdField()
+    {
+        return ['list_id','book_id'];
+    }
 }

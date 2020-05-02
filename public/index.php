@@ -99,6 +99,8 @@ try {
         $uri = substr($uri,$prefixLen);
     }
 
+    $app->response->setHeader('Cache-Control','no-cache');
+
     $app->handle($uri);
 } catch (AbstractHttpException $e) {
     $response = $app->response;

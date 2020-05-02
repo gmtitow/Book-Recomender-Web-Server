@@ -234,22 +234,7 @@ class Users extends AbstractModel
     }
 
     public function getSequenceName() {
-        return "users_userid_seq";
-    }
-
-    /**
-     * @param $id
-     * @param null $columns
-     * @return Users|\Phalcon\Mvc\Model\ResultInterface
-     */
-    public static function findById($id, $columns = null){
-        if ($columns == null)
-            return self::findFirst([self::getIdField() . ' = :id:',
-                'bind' => ['id' => $id]]);
-        else {
-            return self::findFirst(['columns' => $columns, self::getIdField() . ' = :id:',
-                'bind' => ['id' => $id]]);
-        }
+        return "users_user_id_seq";
     }
 
     /**

@@ -82,4 +82,9 @@ class GenresBooks extends AbstractModel
 	public static function getTableName() {
 		return 'genres_books';
 	}
+
+    public static function getIdField()
+    {
+        return ['genre_id','book_id'];
+    }
 }

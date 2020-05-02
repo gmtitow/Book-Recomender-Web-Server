@@ -143,7 +143,7 @@ class SphinxSupport
         $allmatches = [];
         if ($results!= null)
             foreach ($results as $result) {
-                if (count($result['matches']) > 0) {
+                if ($result['total'] > 0) {
                     $allmatches = array_merge($allmatches, $result['matches']);
                 }
             }

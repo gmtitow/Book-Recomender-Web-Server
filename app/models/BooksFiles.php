@@ -82,4 +82,9 @@ class BooksFiles extends AbstractModel
 	public static function getTableName() {
 		return 'books_files';
 	}
+
+    public static function getIdField()
+    {
+        return ['book_id','file_id'];
+    }
 }
