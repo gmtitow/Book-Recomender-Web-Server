@@ -138,7 +138,7 @@ class JWTMiddleware implements MiddlewareInterface
             } else {
 
                 if (!in_array($info['role'], self::access[$require_role]))
-                    throw new Http403Exception("Not enough rights");
+                    throw new Http403Exception("Haven't enough rights");
 
                 $di->getAuthService()->_registerSessionByData($info, $application);
             }

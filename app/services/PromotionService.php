@@ -25,11 +25,13 @@ class PromotionService extends AbstractService
     const ERROR_UNABLE_DELETE_PROMOTION = 3 + self::ADDED_CODE_NUMBER;
 
     /**
-     * @param array $promotionData
+     * @param array $promotionData => {description => string, time_start => int, time_end => int}
      * @param array $referencedBookDescriptions => [{type => string,
      *              ?book_id => int, ?author_id => int, ?genre_id => int,
      *              ?query=>string, factor => float}]
      * @return Promotions
+     *
+     * @throws \Exception
      */
     public function createPromotion(array $promotionData, array $referencedBookDescriptions)
     {
@@ -41,7 +43,7 @@ class PromotionService extends AbstractService
             SupportClass::getErrorsWithException($promotion, self::ERROR_UNABLE_CREATE_PROMOTION, 'Unable to create promotion');
         }
         $sqlQueryToAddBook = new CustomQuery([
-           'columns'=>'book, :promotion_id, price* :factor',
+           'columns'=>'book_id  , :promotion_id',
            'from'=>'books',
            'where'=>'book_id = :book_id',
            'bind'=>[
@@ -50,7 +52,7 @@ class PromotionService extends AbstractService
         ]);
 
         $sqlQueryToAddDescription = new CustomQuery([
-            'columns'=>'book, :promotion_id, price* :factor',
+            'columns'=>'book_id, :promotion_id',
             'from'=>'books',
             'where'=>'',
             'bind'=>[
@@ -62,10 +64,9 @@ class PromotionService extends AbstractService
             if ($bookDescription['type'] == 'book') {
 
                 $insertQuery = 'insert into promotions_books (book_id, promotion_id, price) ';
-
+                $sqlQueryToAddBook->addColumn('price*'.$bookDescription['factor']);
                 $sqlQueryToAddBook->setBind([
                     'promotion_id'=>$promotion->getPromotionId(),
-                    'factor' => $bookDescription['factor'],
                     'book_id' => $bookDescription['book_id'],
                 ]);
 
@@ -74,11 +75,13 @@ class PromotionService extends AbstractService
                 $result = SupportClass::execute($insertQuery,$sqlQueryToAddBook->getBind());
 
                 $sqlQueryToAddBook->setBind([]);
+                $sqlQueryToAddBook->setColumns('book_id  , :promotion_id');
 
             } elseif($bookDescription['type'] == 'description') {
                 $insertQuery = 'insert into promotions_books (book_id, promotion_id, price) ';
 
-                $sqlQueryToAddDescription->addBind(['factor' => $bookDescription['factor']]);
+                $sqlQueryToAddDescription->addBind(['promotion_id'=>$promotion->getPromotionId()]);
+                $sqlQueryToAddDescription->addColumn('price*'.$bookDescription['factor']);
 
                 if (isset($bookDescription['author_id']))
                     $sqlQueryToAddDescription->addWhere('author_id = :author_id',
@@ -95,12 +98,13 @@ class PromotionService extends AbstractService
                         ['query'=>$bookDescription['query']]);
                 }
 
-                $insertQuery.=$sqlQueryToAddBook->getSql() . ' ON CONFLICT DO NOTHING';
+                $insertQuery.=$sqlQueryToAddDescription->getSql() . ' ON CONFLICT DO NOTHING';
 
-                $result = SupportClass::execute($insertQuery,$sqlQueryToAddBook->getBind());
+                $result = SupportClass::execute($insertQuery,$sqlQueryToAddDescription->getBind());
 
-                $sqlQueryToAddBook->setWhere("");
-                $sqlQueryToAddBook->setBind([]);
+                $sqlQueryToAddDescription->setWhere("");
+                $sqlQueryToAddDescription->setBind([]);
+                $sqlQueryToAddDescription->setColumns('book_id  , :promotion_id');
             }
         }
 
@@ -135,23 +139,46 @@ class PromotionService extends AbstractService
     {
     }
 
-    public function deleteReview(Reviews $review)
+    public function deletePromotion(Promotions $promotion)
     {
-        if ($review->delete() == false) {
-            SupportClass::getErrorsWithException($review, self::ERROR_UNABLE_DELETE_PROMOTION, 'Unable to delete offer');
+        if ($promotion->delete() == false) {
+            SupportClass::getErrorsWithException($promotion, self::ERROR_UNABLE_DELETE_PROMOTION, 'Unable to delete promotion');
         }
 
-        return $review;
+        return $promotion;
     }
 
-    public function changeReview(Reviews $review, array $reviewData)
-    {
-        $this->fillPromotion($review, $reviewData);
+    /**
+     * @param int $page
+     * @param int $page_size
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    public function getPromotions(int $page, int $page_size) {
+        $query = new CustomQuery([
+            'from' =>'promotions',
+            'where' => 'time_end > CURRENT_TIMESTAMP'
+        ]);
 
-        if ($review->update() == false) {
-            SupportClass::getErrorsWithException($review, self::ERROR_UNABLE_CHANGE_REVIEW, 'Unable to change offer');
-        }
+        $result = SupportClass::executeWithPagination($query->getSql(),$query->getBind(),$page,$page_size);
 
-        return $review;
+        return $result;
+    }
+
+    public function getBookForPromotion(int $promotion_id, int $page, int $page_size) {
+        $query = new CustomQuery([
+            'columns'=>'books.*',
+            'from' =>'promotions_books inner join books using (book_id)',
+            'where' => 'promotion_id = :promotion_id',
+            'bind'=>['promotion_id' => $promotion_id]
+        ]);
+
+        $result = SupportClass::executeWithPagination($query->getSql(),$query->getBind(),$page,$page_size);
+
+        $result['data'] = $this->bookService->handleBooks($result['data']);
+
+        return $result;
     }
 }

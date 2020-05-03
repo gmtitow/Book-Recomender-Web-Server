@@ -242,7 +242,7 @@ $routes = [
             * @method DELETE
             *
             * @params !list_id int
-            * @params !book_id_id int
+            * @params !book_id int
             *
             * @return array
             **/
@@ -304,6 +304,97 @@ $routes = [
                 'path' => '/get',
                 'action' => 'getBooksAction',
                 'access' => 'public',
+            ],
+
+        ]
+    ],
+    '\App\Controllers\PromotionController' => [
+        'prefix' => '/promotion',
+        'resources' => [
+            /**
+            * Добавляет акцию
+            *
+            * @url add
+            *
+            * @access moderator
+            * @method POST
+            *
+            * @params description string
+            * @params !time_start int
+            * @params !time_end int
+            *
+            * @params book_descriptions array => {
+            *      !type => string,
+            *      book_id => int
+            *      author_id => int
+            *      genre_id => int,
+            *      query=>string
+            *      !factor => float
+            * }
+            *
+            **/
+            [
+                'type' => 'post',
+                'path' => '/add',
+                'action' => 'addPromotionAction',
+                'access' => 'moderator',
+            ],
+
+            /**
+            * Удаляет отзыв
+            *
+            * @url delete
+            *
+            * @access moderator
+            * @method DELETE
+            *
+            * @params! promotion_id int
+            *
+            **/
+            [
+                'type' => 'delete',
+                'path' => '/delete',
+                'action' => 'deletePromotionAction',
+                'access' => 'moderator',
+            ],
+
+            /**
+            * Возвращает акции
+            *
+            * @url get
+            *
+            * @access moderator
+            * @method GET
+            *
+            * @params page int
+            * @params page_size int
+            *
+            **/
+            [
+                'type' => 'get',
+                'path' => '/get',
+                'action' => 'getPromotionsAction',
+                'access' => 'moderator',
+            ],
+
+            /**
+            * Возвращает акции
+            *
+            * @url get/books
+            *
+            * @access moderator
+            * @method GET
+            *
+            * @params !promotion_id int
+            * @params page int
+            * @params page_size int
+            *
+            **/
+            [
+                'type' => 'get',
+                'path' => '/get/books',
+                'action' => 'getBooksForPromotionAction',
+                'access' => 'moderator',
             ],
 
         ]
