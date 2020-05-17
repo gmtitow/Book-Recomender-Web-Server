@@ -53,6 +53,10 @@ class BookService extends AbstractService
             $cl->SetFilter('author_id',$filters['authors'],false);
         }
 
+        if (isset($filters['book_ids'])) {
+            $cl->SetFilter('book_id',$filters['book_ids'],true);
+        }
+
         $cl->AddQuery($cl->EscapeString($query),'books_disc_index');
 
         $results = $cl->RunQueries();

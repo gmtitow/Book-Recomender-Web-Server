@@ -33,34 +33,42 @@ class BookController extends AbstractController
      * @params genre_id int
      * @params query string
      *
+     * @params book_ids array of int
+     *
      * @params page int
      * @params page_size int
      *
      */
     public function getBooksAction()
     {
-        $expectation = [
-            'author_id' => [
-                'type' => 'int'
-            ],
-            'genre_id' => [
-                'type' => 'int'
-            ],
-            'query' => [
-                'type' => 'string',
-                'default' => ''
-            ],
-            'page' => [
-                'type' => 'int',
-                'default' => 1
-            ],
-            'page_size' => [
-                'type' => 'int',
-                'default' => 10
-            ],
-        ];
+        //GENERATED VALIDATION
+        {
+            $expectation = [
+                'author_id' => [
+                    'type' => 'int',
+                ],
+                'genre_id' => [
+                    'type' => 'int',
+                ],
+                'query' => [
+                    'type' => 'string',
+                ],
+                'book_ids' => [
+                    'type' => 'array',
+                    'sub_data' => [
+                        'type' => 'int',
+                    ],
+                ],
+                'page' => [
+                    'type' => 'int',
+                ],
+                'page_size' => [
+                    'type' => 'int',
+                ],
+            ];
 
-        $data = self::getInput('POST', $expectation);
+            $data = self::getInput('POST', $expectation, null, false);
+        }
 
         try {
             $filters = [];
@@ -70,6 +78,9 @@ class BookController extends AbstractController
 
             if (isset($data['author_id']))
                 $filters['authors'] = array($data['author_id']);
+
+            if (isset($data['book_ids']))
+                $filters['book_ids'] = $data['book_ids'];
 
             $books = $this->bookService->getBooks($data['query'], $filters, $data['page'], $data['page_size']);
 

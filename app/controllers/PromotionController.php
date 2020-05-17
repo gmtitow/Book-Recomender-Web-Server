@@ -92,6 +92,9 @@ class PromotionController extends AbstractController
         try {
             $userId = self::getUserId();
 
+            if (!isset($data['book_descriptions']))
+                $data['book_descriptions'] = [];
+
             $promotion = $this->promotionService->createPromotion($data,$data['book_descriptions']);
 
             $handledReview = PromotionView::handlePromotion($promotion->toArray());
@@ -134,7 +137,7 @@ class PromotionController extends AbstractController
         $data = self::getInput('DELETE', $expectation);
 
         try {
-            $promotion = $this->promotionService->getPromotionById($data['review_id']);
+            $promotion = $this->promotionService->getPromotionById($data['promotion_id']);
 
             $this->promotionService->deletePromotion($promotion);
 
