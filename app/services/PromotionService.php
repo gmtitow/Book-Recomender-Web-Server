@@ -89,7 +89,7 @@ class PromotionService extends AbstractService
 
                 if (isset($bookDescription['genre_id']))
                     $sqlQueryToAddDescription->addWhere(
-                        'exists (genres_books where genre_id = :genre_id and genres_books.book_id = books.book_id)',
+                        'exists (select * from genres_books where genre_id = :genre_id and genres_books.book_id = books.book_id)',
                         ['genre_id'=>$bookDescription['genre_id']]);
 
                 if (isset($bookDescription['query'])) {

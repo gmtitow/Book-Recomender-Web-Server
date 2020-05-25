@@ -31,7 +31,7 @@ class BookController extends AbstractController
      *
      * @params author_id int
      * @params genre_id int
-     * @params query string
+     * @params query string = ''
      *
      * @params book_ids array of int
      *
@@ -52,6 +52,7 @@ class BookController extends AbstractController
                 ],
                 'query' => [
                     'type' => 'string',
+                    'default' => '',
                 ],
                 'book_ids' => [
                     'type' => 'array',
@@ -69,6 +70,7 @@ class BookController extends AbstractController
 
             $data = self::getInput('POST', $expectation, null, false);
         }
+        //END GENERATED VALIDATION
 
         try {
             $filters = [];
