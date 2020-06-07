@@ -7,6 +7,7 @@ use App\Controllers\HttpExceptions\Http403Exception;
 use App\Controllers\HttpExceptions\Http422Exception;
 use App\Controllers\HttpExceptions\Http500Exception;
 use App\Models\Reviews;
+use App\services\PromotionService;
 use App\services\ReviewService;
 use App\Services\ServiceException;
 use App\Services\ServiceExtendedException;
@@ -259,6 +260,52 @@ class PromotionController extends AbstractController
         }
 
         return self::successPaginationResponse('', $promotions['data'],$promotions['pagination']);
+    }
+
+    /**
+     * Возвращает акции
+     *
+     * @url send/advertising
+     *
+     * @access moderator
+     * @method POST
+     *
+     * @params !promotion_id int
+     *
+     */
+    public function sendAdvertisingAction()
+    {
+        //GENERATED VALIDATION
+        {
+            $expectation = [
+                'promotion_id' => [
+                    'type' => 'int',
+                    'is_require' => true,
+                ],
+            ];
+
+            $data = self::getInput('POST', $expectation, null, false);
+        }
+        //END GENERATED VALIDATION
+        try {
+            $promotion = $this->promotionService->getPromotionById($data['promotion_id']);
+
+            $this->promotionService->sendAdvertising($promotion);
+        } catch (ServiceExtendedException $e) {
+            switch ($e->getCode()) {
+                default:
+                    throw new Http500Exception(_('Internal Server Error'), $e->getCode(), $e);
+            }
+        } catch (ServiceException $e) {
+            switch ($e->getCode()) {
+                case PromotionService::ERROR_PROMOTION_NOT_FOUND:
+                    throw new Http400Exception($e->getMessage(), $e->getCode(), $e);
+                default:
+                    throw new Http500Exception(_('Internal Server Error'), $e->getCode(), $e);
+            }
+        }
+
+        return self::successResponse('');
     }
 }
 

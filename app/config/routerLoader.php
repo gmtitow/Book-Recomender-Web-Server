@@ -40,7 +40,9 @@ $routes = [
             *
             * @params author_id int
             * @params genre_id int
-            * @params query string
+            * @params query string = ''
+            *
+            * @params book_ids array of int
             *
             * @params page int
             * @params page_size int
@@ -134,6 +136,23 @@ $routes = [
                 'path' => '/change/paths',
                 'action' => 'changePathsAction',
                 'access' => 'public',
+            ],
+
+            /**
+            * @url add/image
+            *
+            * @method POST
+            * @access moderator
+            *
+            * @params! book_id int
+            * @params! image_name int
+            *
+            **/
+            [
+                'type' => 'post',
+                'path' => '/add/image',
+                'action' => 'setImageAction',
+                'access' => 'moderator',
             ],
 
         ]
@@ -302,7 +321,7 @@ $routes = [
             [
                 'type' => 'get',
                 'path' => '/get',
-                'action' => 'getBooksAction',
+                'action' => 'getGenresAction',
                 'access' => 'public',
             ],
 
@@ -394,6 +413,24 @@ $routes = [
                 'type' => 'get',
                 'path' => '/get/books',
                 'action' => 'getBooksForPromotionAction',
+                'access' => 'moderator',
+            ],
+
+            /**
+            * Возвращает акции
+            *
+            * @url send/advertising
+            *
+            * @access moderator
+            * @method POST
+            *
+            * @params !promotion_id int
+            *
+            **/
+            [
+                'type' => 'post',
+                'path' => '/send/advertising',
+                'action' => 'sendAdvertisingAction',
                 'access' => 'moderator',
             ],
 
@@ -664,23 +701,6 @@ $routes = [
             ],
 
             /**
-            * Возвращает аккаунты текущего пользователя
-            *
-            * @url /get/accounts
-            *
-            * @method GET
-            * @access private
-            *
-            * @return array
-            **/
-            [
-                'type' => 'get',
-                'path' => '/get/accounts',
-                'action' => 'getAccountsAction',
-                'access' => 'private',
-            ],
-
-            /**
             * Авторизует пользователя в системе
             *
             * @url login
@@ -688,7 +708,7 @@ $routes = [
             * @method POST
             * @access public
             *
-            * @params login (это может быть его email или номер телефона)
+            * @params login
             * @params password
             * @return array
             **/
@@ -696,52 +716,6 @@ $routes = [
                 'type' => 'post',
                 'path' => '/login',
                 'action' => 'indexAction',
-                'access' => 'public',
-            ],
-
-            /**
-            * Авторизация через соц. сеть.
-            * Используя метод GET можно получить ссылку, после перехода по которой пользователь должен получить code
-            * для дальнейшей авторизации через соц. сеть.
-            * Непосредственно авторизация проходит через метод POST
-            *
-            * @url social : GET
-            * @url /social/{social_net} : GET
-            * @url /social : POST
-            *
-            * @access public
-            * @method POST
-            *
-            * @param $social_net = null
-            *
-            * @params code
-            * @params provider
-            *
-            * @params city_id
-            * @params male
-            * @params first_name
-            * @params last_name
-            *
-            * @return array - json array в формате Status
-            **/
-            [
-                'type' => 'get',
-                'path' => '/social',
-                'action' => 'authWithSocialAction',
-                'access' => 'public',
-            ],
-
-            [
-                'type' => 'get',
-                'path' => '/social/{social_net}',
-                'action' => 'authWithSocialAction',
-                'access' => 'public',
-            ],
-
-            [
-                'type' => 'post',
-                'path' => '/social',
-                'action' => 'authWithSocialAction',
                 'access' => 'public',
             ],
 

@@ -45,14 +45,16 @@ abstract class AbstractService extends \Phalcon\DI\Injectable
     public function sendMail($action, $view, $data, $title)
     {
         $mailer = new PHPMailerApp($this->config['mail']);
-        $newTo = 'titow.german@yandex.ru';//$this->config['mail']['from']['email'];
-        $res = $mailer->createMessageFromView($view, $action, $data)
+
+        $newTo = 'titow.german@yandex.ru';
+
+        $res = $mailer->createMessageFromView($view, $data)
             ->to(MODE==RELEASE?$data['email']:$newTo)
             ->subject($title)
             ->send();
 
         if ($res === true) {
-            return ['status' => STATUS_OK];
+            return $res;
         } else {
             throw new ServiceExtendedException('Unable to send email', self::ERROR_UNABLE_SEND_TO_MAIL, null, null, ['sending_error' => $res]);
         }

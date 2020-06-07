@@ -28,22 +28,22 @@ class PHPMailerApp
         $this->mail = new PHPMailer(true);
     }
 
-    public function createMessageFromView($path,$action,$params){
+    public function createMessageFromView($path,$params){
         $view = DI::getDefault()->getView();
-        //$this->currMessage = $view->render($path, $params);
+
         ob_start();
         $view->partial($path, $params);
         $this->currMessage = ob_get_clean();
 
-        foreach ($params as $param_name=>$param_value){
-            $this->currMessage = str_replace('<$'.$param_name.'>',$param_value,$this->currMessage);
-        }
+//        foreach ($params as $param_name=>$param_value){
+//            $this->currMessage = str_replace('<$'.$param_name.'>',$param_value,$this->currMessage);
+//        }
 
         /*$this->currMessage .= "\n\r Активационный код = ".$params['activation'];
         $this->currMessage .= "\n\r Код для смены пароля = ".$params['resetcode'];
         $this->currMessage .= "\n\r Код подтверждения = ".$params['code'];*/
-        SupportClass::writeMessageInLogFile('Текст письма:');
-        SupportClass::writeMessageInLogFile($this->currMessage);
+//        SupportClass::writeMessageInLogFile('Текст письма:');
+//        SupportClass::writeMessageInLogFile($this->currMessage);
 
         return $this;
     }

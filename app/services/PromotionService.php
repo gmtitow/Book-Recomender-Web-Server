@@ -139,6 +139,49 @@ class PromotionService extends AbstractService
     {
     }
 
+    public function sendAdvertising(Promotions $promotion) {
+//        $query = new CustomQuery([
+//            'columns'=>'user_id, email,
+//            array_to_json(array_agg(row(to_json(books.*), to_json(promotions_books.*), to_json(authors.*)))) as books',
+//            'from'=>'users inner join book_lists using(user_id) inner join recommended_books using(list_id)
+//                    inner join promotions_books using(book_id) inner join books on (promotions_books.book_id = books.book_id)
+//                    inner join authors using(author_id)',
+//            'where'=>'promotion_id = :promotion_id',
+//            'bind'=>['promotion_id'=>$promotion->getPromotionId()],
+//            'group'=>'users.user_id, users.email'
+//        ]);
+
+        $query = new CustomQuery([
+            'columns'=>'user_id, email, 
+array_to_json(array(select (to_json(books.*), to_json(promotions_books.*), to_json(authors.*), accordance, files.path_to)
+ 		from book_lists inner join recommended_books using(list_id)
+        inner join promotions_books using(book_id) inner join books on (promotions_books.book_id = books.book_id)
+ 		inner join authors using(author_id) left join files on(books.cover_file_id = files.file_id)
+ 		where promotion_id = :promotion_id and book_lists.user_id = users.user_id
+ 		order by accordance desc
+		limit 3
+)) as books',
+            'from'=>'users',
+            'where'=>'exists
+	(select * from book_lists inner join recommended_books using(list_id)
+                    inner join promotions_books using(book_id) where promotion_id = :promotion_id and book_lists.user_id = users.user_id)',
+            'bind'=>['promotion_id'=>$promotion->getPromotionId()],
+            'group'=>'users.user_id, users.email'
+        ]);
+
+        $users = SupportClass::executeQuery($query);
+
+        foreach ($users as $user){
+            $books = json_decode($user['books'],true);
+            $books = array_map(function($book){
+                return array_merge($book['f1'],['author_name'=>$book['f3']['full_name'], 'new_price'=>$book['f2']['price'],
+                    'accordance'=>$book['f4'], 'image_path'=>is_null($book['f5'])?'https://free-images.com/or/8afd/book_open_blank_read_0.jpg':SERVER_URL.'/'.$book['f5']]);
+            },$books);
+            $emailInfo = ['email'=>$user['email'],'books'=>$books];
+            $this->sendMail('advertising','emails/advertising',$emailInfo,'Акция');
+        }
+    }
+
     public function deletePromotion(Promotions $promotion)
     {
         if ($promotion->delete() == false) {

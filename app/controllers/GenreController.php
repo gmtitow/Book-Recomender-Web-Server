@@ -24,29 +24,7 @@ class GenreController extends AbstractController
      * @access public
      *
      */
-    public function getBooksAction() {
-//        $expectation = [
-//            'author_id' => [
-//                'type'=>'int'
-//            ],
-//            'genre_id' => [
-//                'type'=>'int'
-//            ],
-//            'query' => [
-//                'type'=>'string',
-//                'default'=>''
-//            ],
-//            'page' => [
-//                'type'=>'int',
-//                'default' => 1
-//            ],
-//            'page_size' => [
-//                'type'=>'int',
-//                'default'=> 10
-//            ],
-//        ];
-//
-//        $data = self::getInput('POST',$expectation);
+    public function getGenresAction() {
 
         try {
             $genres = Genres::find(['columns'=>'genre_id, genre_name','order'=>'genre_id desc']);

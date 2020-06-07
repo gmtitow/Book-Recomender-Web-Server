@@ -1,0 +1,9 @@
+<div>Рады предложить вам книги по новой замечательной цене! Среди них:</div>
+<? foreach($books as $book){ ?>
+<div align="center" style="margin:10px"><img align="center" src = "<?echo $book['image_path']?>" style="width:100px; height:100px"></div>
+<div align="center"><?echo $book['name']?></div>
+<div align="center" style="margin:10px"><?echo $book['author_name']?></div>
+<div align="center"><del><?echo is_null($book['price'])?'бесплатно':$book['price'].' р.'?></del> - <?echo is_null($book['new_price'])?'бесплатно':$book['new_price'].' р.'?>!</div>
+<div align ="center" style="width:100%;border-top:4px solid #9EC1D4;border-bottom: 4px #9EC1D4;margin-bottom:20px;margin-top:20px"></div>
+<?php }?>
+<div>А также другие!</div>

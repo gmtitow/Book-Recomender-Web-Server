@@ -79,10 +79,34 @@ class Books extends AbstractModel
 
     /**
      *
+     * @var integer
+     * @Column(type="integer", length=32, nullable=true)
+     */
+    protected $cover_file_id;
+
+    /**
+     *
      * @var string
      * @Column(type="string", nullable=true)
      */
     protected $has_translator;
+
+    /**
+     * @return int
+     */
+    public function getCoverFileId()
+    {
+        return $this->cover_file_id;
+    }
+
+    /**
+     * @param int $cover_file_id
+     */
+    public function setCoverFileId($cover_file_id): void
+    {
+        $this->cover_file_id = $cover_file_id;
+    }
+
 
     /**
      * Method to set the value of field book_id

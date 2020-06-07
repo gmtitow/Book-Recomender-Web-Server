@@ -38,7 +38,9 @@ class ReviewController extends AbstractController
         $expectation = [
             'rating' => [
                 'type'=>'int',
-                'is_require' => true
+                'is_require' => true,
+                'min'=> 0,
+                'max'=>5
             ],
             'book_id' => [
                 'type'=>'int',

@@ -233,7 +233,7 @@ class Reviews extends AbstractModel
         $reviews = Reviews::findFirst(['user_id = :user_id: and book_id = :book_id:',
             'bind'=>['user_id'=>$user_id,'book_id'=>$book_id]]);
         
-        return $reviews!==false;
+        return !empty($reviews);
     }
 
 	public static function getTableName() {

@@ -21,6 +21,10 @@ class BookService extends AbstractService
 
     const ERROR_BOOK_NOT_FOUND = 1 + self::ADDED_CODE_NUMBER;
 
+    /**
+     * @param int $book_id
+     * @return Books
+     */
     public function getBookById(int $book_id) {
         $book = Books::findFirstByBookId($book_id);
 

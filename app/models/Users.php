@@ -234,7 +234,7 @@ class Users extends AbstractModel
     }
 
     public function getSequenceName() {
-        return "users_user_id_seq";
+        return "users_userid_seq";
     }
 
     /**

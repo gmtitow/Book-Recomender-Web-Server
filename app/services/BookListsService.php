@@ -24,7 +24,7 @@ use App\Views\BookView;
  */
 class BookListsService extends AbstractService
 {
-    const ADDED_CODE_NUMBER = 26000;
+    const ADDED_CODE_NUMBER = 7000;
 
     /** Unable to create user */
     const ERROR_UNABLE_CREATE_BOOK_LIST = 1 + self::ADDED_CODE_NUMBER;
@@ -160,7 +160,7 @@ class BookListsService extends AbstractService
         $bookRecord->setBookId($book->getBookId());
         $bookRecord->setRating($rating);
 
-        if (!$bookRecord->create()) {
+        if (!$bookRecord->save()) {
             SupportClass::getErrorsWithException($bookRecord,self::ERROR_UNABLE_ADD_BOOK_IN_LIST,'Unable add book in list');
         }
 

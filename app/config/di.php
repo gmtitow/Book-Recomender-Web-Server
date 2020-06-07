@@ -84,7 +84,6 @@ $di->setShared('time', function () {
 });
 
 //
-$di->setShared('accountService', '\App\Services\AccountService'); //1
 $di->setShared('authService', '\App\Services\AuthService'); //2
 $di->setShared('bookService', '\App\Services\BookService'); //3
 $di->setShared('authorService', '\App\Services\AuthorService'); //4
@@ -93,7 +92,7 @@ $di->setShared('fileService', '\App\Services\FileService'); //6
 $di->setShared('bookListsService', '\App\Services\BookListsService'); //7
 $di->setShared('promotionService', '\App\Services\PromotionService'); //8
 
-$di->setShared('userService', '\App\Services\UserService'); //26
+$di->setShared('userService', '\App\Services\UserService'); //1
 
 $di['mailer'] = function() {
     $config = $this->getConfig()['mail'];

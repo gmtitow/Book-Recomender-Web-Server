@@ -7,6 +7,7 @@ use App\Controllers\HttpExceptions\Http403Exception;
 use App\Controllers\HttpExceptions\Http422Exception;
 use App\Controllers\HttpExceptions\Http500Exception;
 use App\Libs\SupportClass;
+use App\Models\BooksFiles;
 use App\Models\Reviews;
 use App\Services\BookListsService;
 use App\services\BookService;
@@ -294,6 +295,7 @@ class BookController extends AbstractController
 
         try {
 
+            $this->bookService->getBookById($data['book_id']);
             $this->fileService->returnFileToClient($data['book_id']);
 
         } catch (ServiceExtendedException $e) {
@@ -304,6 +306,7 @@ class BookController extends AbstractController
         } catch (ServiceException $e) {
             switch ($e->getCode()) {
                 case FileService::ERROR_FILE_NOT_FOUND:
+                case BookService::ERROR_BOOK_NOT_FOUND:
                     throw new Http400Exception($e->getMessage(), $e->getCode(), $e);
                 default:
                     throw new Http500Exception(_('Internal Server Error'), $e->getCode(), $e);
@@ -380,6 +383,60 @@ class BookController extends AbstractController
             $page += 1;
         }
 
+
+        return self::successResponse('All ok');
+    }
+
+    /**
+     * @url add/image
+     *
+     * @method POST
+     * @access moderator
+     *
+     * @params! book_id int
+     * @params! image_name string
+     *
+     */
+    public function setImageAction()
+    {
+        //GENERATED VALIDATION
+        {
+            $expectation = [
+                'book_id' => [
+                    'type' => 'int',
+                    'is_require' => true,
+                ],
+                'image_name' => [
+                    'type' => 'string',
+                    'is_require' => true,
+                ],
+            ];
+
+            $data = self::getInput('POST', $expectation, null, false);
+        }
+        //END GENERATED VALIDATION
+
+        $this->db->begin();
+        $book = $this->bookService->getBookById($data['book_id']);
+
+        $file = new Files();
+
+        $image_name = pathinfo($data['image_name'],PATHINFO_BASENAME);
+        $extension = pathinfo($data['image_name'],PATHINFO_EXTENSION);
+        $file->setName($image_name);
+        $file->setExtension($extension);
+        $file->setPathTo('/public/images/'.$data['image_name']);
+        $file->setFullName($data['image_name']);
+
+        if (!$file->create())
+            throw new Http500Exception("Something wrong, unable create file");
+
+        $book->setCoverFileId($file->getFileId());
+
+        if (!$book->update())
+            throw new Http500Exception("Something wrong, unable update book");
+
+        $this->db->commit();
 
         return self::successResponse('All ok');
     }

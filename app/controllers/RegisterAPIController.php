@@ -84,10 +84,9 @@ class RegisterAPIController extends AbstractController
         $this->db->begin();
 
         $checking = $this->authService->checkActivationCode($data['activation_code'], $data['login']);
-        if ($checking == AuthService::WRONG_ACTIVATION_CODE)
-            $errors['activation_code'] = 'Wrong activation code';
-
-        $this->checkErrors($errors);
+        if ($checking == AuthService::WRONG_ACTIVATION_CODE) {
+            throw new ServiceException('Wrong activation code',AuthService::ERROR_WRONG_ACTIVATION_CODE);
+        }
         if ($checking == AuthService::RIGHT_ACTIVATION_CODE) {
             $this->authService->deleteActivationCode($data['login']);
         } elseif ($checking == AuthService::RIGHT_DEACTIVATION_CODE) {
@@ -115,12 +114,8 @@ class RegisterAPIController extends AbstractController
 
         } catch (ServiceExtendedException $e) {
             switch ($e->getCode()) {
-                case AccountService::ERROR_UNABLE_CREATE_ACCOUNT:
-                case UserService::ERROR_UNABLE_CREATE_USER:
-                case AuthService::ERROR_UNABLE_SEND_TO_MAIL:
-                case AuthService::ERROR_UNABLE_TO_CREATE_ACTIVATION_CODE:
-                case AbstractService::ERROR_UNABLE_SEND_TO_MAIL:
-                    $exception = new Http422Exception($e->getMessage(), $e->getCode(), $e);
+                case AuthService::ERROR_WRONG_ACTIVATION_CODE:
+                    $exception = new Http400Exception($e->getMessage(), $e->getCode(), $e);
                     throw $exception->addErrorDetails($e->getData());
                 default:
                     throw new Http500Exception(_('Internal Server Error'), $e->getCode(), $e);

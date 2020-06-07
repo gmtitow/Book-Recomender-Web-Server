@@ -18,7 +18,7 @@ use App\Libs\SupportClass;
  */
 class UserService extends AbstractService
 {
-    const ADDED_CODE_NUMBER = 26000;
+    const ADDED_CODE_NUMBER = 1000;
 
     /** Unable to create user */
     const ERROR_UNABLE_CREATE_USER = 1 + self::ADDED_CODE_NUMBER;
